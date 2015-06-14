@@ -4,12 +4,15 @@ defmodule ElixirExtract.Article do
   schema "articles" do
     field :title
     field :body
+    field :user_id, :integer
+    field :website_url
+    field :website_host
 
     timestamps
   end
 
-  @required_fields ~w(title body)
-  @optional_fields ~w()
+  @required_fields ~w(title body user_id)
+  @optional_fields ~w(website_url website_host)
 
   @doc """
   Creates a changeset based on the `model` and `params`.

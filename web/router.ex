@@ -9,6 +9,7 @@ defmodule ElixirExtract.Router do
   end
 
   pipeline :api do
+    plug CORSPlug, [origin: "http://localhost:9001"]
     plug :accepts, ["json"]
   end
 
@@ -21,6 +22,11 @@ defmodule ElixirExtract.Router do
   scope "/api", ElixirExtract do
     pipe_through :api
 
+    options "/auth/github", AuthController, :options
+    post "/auth/github", AuthController, :github
+
     resources "/articles", ArticleController
+    options   "/articles", ArticleController, :options
+    options   "/articles/:id", ArticleController, :options
   end
 end

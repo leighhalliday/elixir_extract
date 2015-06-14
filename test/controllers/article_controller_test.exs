@@ -37,7 +37,7 @@ defmodule ElixirExtract.ArticleControllerTest do
     post_data = %{article:
       %{title: "Better article", body: "Better body"}
     }
-    response = conn(:post, "/api/articles", post_data) |> send_request
+    response = conn(:post, "/api/articles", post_data) |> send_authenticated_request(find_or_create_user)
 
     # find last inserted article
     query = from a in Article,
@@ -54,11 +54,12 @@ defmodule ElixirExtract.ArticleControllerTest do
       %{title: String.duplicate("A", 200), body: ""}
     }
 
-    response = conn(:post, "/api/articles", post_data) |> send_request
+    response = conn(:post, "/api/articles", post_data) |> send_authenticated_request(find_or_create_user)
 
     assert response.status == 422
     assert response.resp_body == Poison.encode!(%{errors: %{
-      title: ["should be at most 140 characters"]
+      title: ["should be at most 140 characters"],
+      body: ["can't be blank"]
     }})
   end
 
@@ -69,19 +70,19 @@ defmodule ElixirExtract.ArticleControllerTest do
       %{title: "Updated title"}
     }
 
-    response = conn(:patch, "/api/articles/#{article.id}", post_data) |> send_request
+    response = conn(:patch, "/api/articles/#{article.id}", post_data) |> send_authenticated_request(find_or_create_user)
 
     assert response.status == 200
     assert response.resp_body == Poison.encode!(%Article{article | title: "Updated title"})
   end
 
   test "/update article not found" do
-    response = conn(:patch, "/api/articles/123", %{article: %{}}) |> send_request
+    response = conn(:patch, "/api/articles/123", %{article: %{}}) |> send_authenticated_request(find_or_create_user)
     assert response.status == 404
   end
 
   test "/update when bad request" do
-    response = conn(:patch, "/api/articles/nope", %{article: %{}}) |> send_request
+    response = conn(:patch, "/api/articles/nope", %{article: %{}}) |> send_authenticated_request(find_or_create_user)
     assert response.status == 400
   end
 
@@ -92,16 +93,18 @@ defmodule ElixirExtract.ArticleControllerTest do
       %{title: String.duplicate("A", 200), body: ""}
     }
 
-    response = conn(:patch, "/api/articles/#{article.id}", post_data) |> send_request
+    response = conn(:patch, "/api/articles/#{article.id}", post_data) |> send_authenticated_request(find_or_create_user)
 
     assert response.status == 422
     assert response.resp_body == Poison.encode!(%{errors: %{
-      title: ["should be at most 140 characters"]
+      title: ["should be at most 140 characters"],
+      body: ["can't be blank"]
     }})
   end
 
   defp create_article do
-    %Article{title: "Good article", body: "Article body"}
+    %User{id: user_id} = find_or_create_user
+    %Article{title: "Good article", body: "Article body", user_id: user_id}
       |> Repo.insert
   end
 

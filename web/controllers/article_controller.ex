@@ -1,30 +1,32 @@
 defmodule ElixirExtract.ArticleController do
   use ElixirExtract.Web, :controller
   alias ElixirExtract.Article
+  alias ElixirExtract.User
+  alias ElixirExtract.Authenticator
 
-  plug :action
+  plug :authenticate when action in [:create, :update]
+  plug :find_article when action in [:show, :update]
   plug :scrub_params, "article" when action in [:create, :update]
+  plug :action
 
   def index(conn, _params) do
-    articles = Repo.all(Article)
+    query = from a in Article,
+      order_by: [desc: a.id],
+      limit: 10
+    articles = Repo.all(query)
+
     render conn, articles: articles
   end
 
-  def show(conn, %{"id" => id}) do
-    try do
-      article = Repo.get!(Article, id)
-      json conn, article
-    rescue
-      _e in Ecto.NoResultsError ->
-        conn |> put_status(:not_found) # 404
-      _e in Ecto.CastError ->
-        # when id can't convert to integer
-        conn |> put_status(400)
-    end
+  def show(%Plug.Conn{assigns: %{article: article}} = conn, _) do
+    json conn, article
   end
 
   def create(conn, %{"article" => article_params}) do
-    changeset = Article.changeset(%Article{}, article_params)
+    %Plug.Conn{assigns: %{user: user}} = conn
+    %User{id: user_id} = user
+
+    changeset = Article.changeset(%Article{user_id: user_id}, article_params)
 
     if changeset.valid? do
       article = Repo.insert(changeset)
@@ -34,23 +36,34 @@ defmodule ElixirExtract.ArticleController do
     end
   end
 
-  def update(conn, %{"id" => id, "article" => article_params}) do
+  def update(%Plug.Conn{assigns: %{article: article}} = conn, %{"id" => id, "article" => article_params}) do
+    changeset = Article.changeset(article, article_params)
+    if changeset.valid? do
+      article = Repo.update(changeset)
+      json conn, article
+    else
+      json (conn |> put_status(422)), %{errors: changeset}
+    end
+  end
+
+  defp authenticate(conn, _) do
+    case Authenticator.find_user(conn) do
+      {:ok, user} ->
+        assign(conn, :user, user)
+      :error ->
+        conn |> put_status(401) |> halt
+    end
+  end
+
+  defp find_article(%Plug.Conn{params: %{"id" => id}} = conn, _) do
     try do
       article = Repo.get!(Article, id)
-      changeset = Article.changeset(article, article_params)
-
-      if changeset.valid? do
-        article = Repo.update(changeset)
-        json conn, article
-      else
-        json (conn |> put_status(422)), %{errors: changeset}
-      end
+      assign(conn, :article, article)
     rescue
       _e in Ecto.NoResultsError ->
-        conn |> put_status(:not_found) # 404
+        conn |> put_status(:not_found) |> halt # 404
       _e in Ecto.CastError ->
-        # when id can't convert to integer
-        conn |> put_status(400)
+        conn |> put_status(400) |> halt
     end
   end
 
