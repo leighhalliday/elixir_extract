@@ -36,7 +36,9 @@ defmodule ElixirExtract.Mixfile do
      {:phoenix_live_reload, "~> 0.4", only: :dev},
      {:cowboy, "~> 1.0"},
      {:cors_plug, "~> 0.1.2"},
-     {:oauth2, "~> 0.1.1"}
+     {:oauth2, "~> 0.1.1"},
+     {:floki, "~> 0.3.1"},
+     {:earmark, "~> 0.1.17"}
     ]
   end
 end

@@ -20,7 +20,7 @@ defmodule ElixirExtract.AuthController do
     IO.inspect "**********************"
     IO.inspect user
 
-    json conn, %{token: token.access_token}
+    json conn, %{token: token.access_token, user: user}
   end
 
 end

@@ -4,9 +4,11 @@ defmodule ElixirExtract.Article do
   schema "articles" do
     field :title
     field :body
-    field :user_id, :integer
+    #field :user_id, :integer
     field :website_url
     field :website_host
+
+    belongs_to :user, ElixirExtract.User
 
     timestamps
   end
@@ -26,5 +28,12 @@ defmodule ElixirExtract.Article do
       |> cast(params, @required_fields, @optional_fields)
       |> validate_length(:title, max: 140)
       |> validate_length(:body, max: 1000)
+  end
+
+  def get_with_user!(id) do
+    query = from a in ElixirExtract.Article,
+      preload: [:user],
+      where: a.id == ^id
+    ElixirExtract.Repo.one!(query)
   end
 end

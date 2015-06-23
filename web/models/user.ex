@@ -8,6 +8,8 @@ defmodule ElixirExtract.User do
     field :github_token
     field :blog_url
 
+    has_many :articles, ElixirExtract.Article
+
     timestamps
   end
 

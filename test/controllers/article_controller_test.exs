@@ -103,9 +103,10 @@ defmodule ElixirExtract.ArticleControllerTest do
   end
 
   defp create_article do
-    %User{id: user_id} = find_or_create_user
-    %Article{title: "Good article", body: "Article body", user_id: user_id}
+    %User{id: user_id} = user = find_or_create_user
+    article = %Article{title: "Good article", body: "Article body", user_id: user_id}
       |> Repo.insert
+    %Article{article | user: user}
   end
 
 end

@@ -12,6 +12,7 @@ defmodule ElixirExtract.ArticleController do
   def index(conn, _params) do
     query = from a in Article,
       order_by: [desc: a.id],
+      preload: [:user],
       limit: 10
     articles = Repo.all(query)
 
@@ -57,7 +58,7 @@ defmodule ElixirExtract.ArticleController do
 
   defp find_article(%Plug.Conn{params: %{"id" => id}} = conn, _) do
     try do
-      article = Repo.get!(Article, id)
+      article = Article.get_with_user!(id)
       assign(conn, :article, article)
     rescue
       _e in Ecto.NoResultsError ->
