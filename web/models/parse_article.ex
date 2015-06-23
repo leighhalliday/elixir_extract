@@ -7,11 +7,11 @@ defmodule ElixirExtract.ParseArticle do
   end
 
   def to_html(markdown) do
-    "<article>" <> Earmark.to_html(markdown) <> "</article>"
+    Earmark.to_html(markdown)
   end
 
   def to_floki(html) do
-    Floki.find(html, "article")
+    Floki.parse html
   end
 
   def to_clean_html(floki) do
