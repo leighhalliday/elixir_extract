@@ -31,5 +31,5 @@ defmodule ElixirExtract.Endpoint do
     key: "_elixir_extract_key",
     signing_salt: "PBdDldz3"
 
-  plug :router, ElixirExtract.Router
+  plug ElixirExtract.Router
 end

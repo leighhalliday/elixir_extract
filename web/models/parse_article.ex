@@ -19,8 +19,7 @@ defmodule ElixirExtract.ParseArticle do
   end
 
   defp clean_tags({tag_name, attrs, children}) do
-    allowed = ["p", "a"]
-    case Enum.member?(allowed, tag_name) do
+    case Enum.member?(allowed_tags, tag_name) do
       true -> "<#{tag_name}#{clean_attrs(tag_name, attrs)}>#{clean_tags(children)}</#{tag_name}>"
       false -> clean_tags(children)
     end
@@ -45,7 +44,6 @@ defmodule ElixirExtract.ParseArticle do
   end
 
   defp clean_attr(tag_name, {property, value}) do
-    allowed = %{"a" => ["href"]}
     case allow_attr?(tag_name, property) && valid_attr?(property, value) do
       true -> " #{property}=\"#{value}\""
       false -> nil
@@ -53,8 +51,7 @@ defmodule ElixirExtract.ParseArticle do
   end
 
   defp allow_attr?(tag_name, property) do
-    allowed = %{"a" => ["href"]}
-    Map.has_key?(allowed, tag_name) && Enum.member?(allowed[tag_name], property)
+    Map.has_key?(allowed_attrs, tag_name) && Enum.member?(allowed_attrs[tag_name], property)
   end
 
   defp valid_attr?("href", value) do
@@ -63,6 +60,14 @@ defmodule ElixirExtract.ParseArticle do
 
   defp valid_attr?(_property, value) do
     true
+  end
+
+  defp allowed_attrs do
+    %{"a" => ["href"]}
+  end
+
+  defp allowed_tags do
+    ["p", "a"]
   end
 
 end

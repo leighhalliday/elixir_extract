@@ -2,24 +2,17 @@ defmodule ElixirExtract.AuthController do
   use ElixirExtract.Web, :controller
   alias ElixirExtract.GitHubUser
 
-  plug :action
-
   def github(conn, %{"code" => code}) do
+    # get token from gethub given a code
     token = GitHub.get_token!(code: code)
 
-    IO.inspect "**********************"
-    IO.inspect token
-
+    # connect to github using token
     github_user = OAuth2.AccessToken.get!(token, "/user")
 
-    IO.inspect "**********************"
-    IO.inspect github_user
-
+    # create user in our system based on github info
     user = GitHubUser.create_or_update(github_user, token.access_token)
 
-    IO.inspect "**********************"
-    IO.inspect user
-
+    # respond with token and user info
     json conn, %{token: token.access_token, user: user}
   end
 

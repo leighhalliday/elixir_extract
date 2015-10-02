@@ -29,16 +29,16 @@ defmodule ElixirExtract.Mixfile do
   #
   # Type `mix help deps` for examples and options
   defp deps do
-    [{:phoenix, "~> 0.13.1"},
-     {:phoenix_ecto, "~> 0.4"},
-     {:postgrex, ">= 0.0.0"},
-     {:phoenix_html, "~> 1.0"},
-     {:phoenix_live_reload, "~> 0.4", only: :dev},
+    [{:phoenix, "~> 1.0"},
+     {:phoenix_ecto, "~> 1.2"},
+     {:postgrex, "~> 0.9"},
+     {:phoenix_html, "~> 2.0"},
+     {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:cowboy, "~> 1.0"},
-     {:cors_plug, "~> 0.1.2"},
-     {:oauth2, "~> 0.1.1"},
-     {:floki, "~> 0.3.1"},
-     {:earmark, "~> 0.1.17"}
+     {:cors_plug, "~> 0.1"},
+     {:oauth2, "~> 0.3"},
+     {:floki, "~> 0.4"},
+     {:earmark, "~> 0.1"}
     ]
   end
 end

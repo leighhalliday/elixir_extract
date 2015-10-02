@@ -7,16 +7,16 @@ defmodule ElixirExtract.ArticleController do
   plug :authenticate when action in [:create, :update]
   plug :find_article when action in [:show, :update]
   plug :scrub_params, "article" when action in [:create, :update]
-  plug :action
 
   def index(conn, _params) do
     query = from a in Article,
+      join: u in assoc(a, :user),
       order_by: [desc: a.id],
-      preload: [:user],
+      preload: [user: u],
       limit: 10
     articles = Repo.all(query)
 
-    render conn, articles: articles
+    render(conn, "index.json", articles: articles)
   end
 
   def show(%Plug.Conn{assigns: %{article: article}} = conn, _) do

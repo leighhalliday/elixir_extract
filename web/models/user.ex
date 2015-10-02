@@ -1,5 +1,5 @@
 defmodule ElixirExtract.User do
-  use Ecto.Model
+  use ElixirExtract.Web, :model
 
   schema "users" do
     field :name
@@ -23,7 +23,6 @@ defmodule ElixirExtract.User do
   with no validation performed.
   """
   def changeset(model, params \\ nil) do
-
     model
       |> cast(params, @required_fields, @optional_fields)
   end
